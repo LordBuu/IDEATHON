@@ -1,0 +1,268 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Individual user profile associated with Firebase Auth uid",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Auth UID" },
+        "email": { "type": "string", "description": "User email address" },
+        "displayName": { "type": "string", "description": "Full name" },
+        "photoURL": { "type": "string", "description": "Avatar URL" },
+        "phoneNumber": { "type": "string", "description": "Contact phone" },
+        "profession": { "type": "string", "description": "Fisioterapeuta, Psicólogo, Médico, Nutricionista, Enfermeiro, Aluno/Estagiário, Outro" },
+        "professionalRegister": { "type": "string", "description": "CRM, CREFITO, CRP, COREN, CRN or student ID" },
+        "institution": { "type": "string", "description": "University/Institution if student" },
+        "course": { "type": "string", "description": "Academic course" },
+        "academicId": { "type": "string", "description": "RGM or academic register" },
+        "supervisorName": { "type": "string", "description": "Supervisor name" },
+        "themePreference": { "type": "string", "enum": ["light", "dark", "system"], "description": "Theme mode preference" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp" }
+      },
+      "required": ["uid", "email", "displayName"]
+    },
+    "Clinic": {
+      "title": "Clinic",
+      "description": "Tenant clinic establishment",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Clinic document ID" },
+        "name": { "type": "string", "description": "Clinic corporate or trade name" },
+        "cnpj": { "type": "string", "description": "CNPJ or business tax ID" },
+        "phone": { "type": "string", "description": "Primary phone" },
+        "email": { "type": "string", "description": "Clinic contact email" },
+        "address": { "type": "string", "description": "Physical headquarters address" },
+        "specialties": { "type": "string", "description": "Comma separated specialties" },
+        "ownerUid": { "type": "string", "description": "UID of founding administrator" },
+        "themePalette": { "type": "string", "enum": ["azul-saude", "verde-saude", "turquesa", "lavanda", "grafite", "azul-premium", "esmeralda", "custom"], "description": "Clinic preset theme palette" },
+        "primaryColor": { "type": "string", "description": "Hex code for primary brand color" },
+        "accentColor": { "type": "string", "description": "Hex code for accent brand color" },
+        "logoUrl": { "type": "string", "description": "Logo URL" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp" }
+      },
+      "required": ["id", "name", "ownerUid"]
+    },
+    "ClinicMember": {
+      "title": "ClinicMember",
+      "description": "Membership linking a user to a specific clinic with role and permissions",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Member document ID (usually same as user uid)" },
+        "clinicId": { "type": "string", "description": "Clinic tenant ID" },
+        "uid": { "type": "string", "description": "User UID" },
+        "displayName": { "type": "string", "description": "User name" },
+        "email": { "type": "string", "description": "User email" },
+        "role": { "type": "string", "enum": ["admin", "health_professional", "student", "receptionist"], "description": "RBAC Role" },
+        "profession": { "type": "string", "description": "Specialty/Profession" },
+        "professionalRegister": { "type": "string", "description": "Professional registration number" },
+        "supervisorUid": { "type": "string", "description": "UID of supervisor if student" },
+        "supervisorName": { "type": "string", "description": "Name of supervisor" },
+        "assignedUnitIds": { "type": "string", "description": "Comma separated allowed unit IDs, or 'all'" },
+        "canViewClinicalData": { "type": "string", "description": "Boolean string 'true' or 'false'" },
+        "status": { "type": "string", "enum": ["active", "suspended", "pending"], "description": "Membership status" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp" }
+      },
+      "required": ["id", "clinicId", "uid", "role", "status"]
+    },
+    "ClinicUnit": {
+      "title": "ClinicUnit",
+      "description": "Physical branch or unit of a clinic",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unit ID" },
+        "clinicId": { "type": "string", "description": "Clinic ID" },
+        "name": { "type": "string", "description": "Unit name, e.g. Unidade Centro" },
+        "address": { "type": "string", "description": "Complete physical address" },
+        "phone": { "type": "string", "description": "Phone number" },
+        "active": { "type": "string", "description": "'true' or 'false'" },
+        "roomsCount": { "type": "string", "description": "Number of consultation rooms" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" }
+      },
+      "required": ["id", "clinicId", "name"]
+    },
+    "Patient": {
+      "title": "Patient",
+      "description": "Patient registered at a clinic",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Patient ID" },
+        "clinicId": { "type": "string", "description": "Clinic tenant ID" },
+        "fullName": { "type": "string", "description": "Patient full name" },
+        "cpf": { "type": "string", "description": "CPF number" },
+        "birthDate": { "type": "string", "description": "YYYY-MM-DD" },
+        "gender": { "type": "string", "description": "Gender" },
+        "phone": { "type": "string", "description": "Phone number" },
+        "email": { "type": "string", "description": "Patient email" },
+        "address": { "type": "string", "description": "Residential address" },
+        "emergencyContact": { "type": "string", "description": "Contact name and phone" },
+        "bloodType": { "type": "string", "description": "Blood group" },
+        "allergies": { "type": "string", "description": "Known allergies" },
+        "healthInsurance": { "type": "string", "description": "Health plan or Particular" },
+        "insuranceNumber": { "type": "string", "description": "Health plan card number" },
+        "notes": { "type": "string", "description": "Administrative notes" },
+        "primaryUnitId": { "type": "string", "description": "Preferred unit ID" },
+        "createdBy": { "type": "string", "description": "Author UID" },
+        "createdByName": { "type": "string", "description": "Author full name" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp" }
+      },
+      "required": ["id", "clinicId", "fullName", "phone"]
+    },
+    "Appointment": {
+      "title": "Appointment",
+      "description": "Scheduled medical appointment or consultation",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Appointment ID" },
+        "clinicId": { "type": "string", "description": "Clinic tenant ID" },
+        "patientId": { "type": "string", "description": "Patient ID" },
+        "patientName": { "type": "string", "description": "Patient full name" },
+        "patientPhone": { "type": "string", "description": "Patient phone" },
+        "professionalUid": { "type": "string", "description": "Professional UID" },
+        "professionalName": { "type": "string", "description": "Professional display name" },
+        "unitId": { "type": "string", "description": "Unit ID" },
+        "unitName": { "type": "string", "description": "Unit display name" },
+        "specialty": { "type": "string", "description": "Specialty" },
+        "date": { "type": "string", "description": "YYYY-MM-DD" },
+        "time": { "type": "string", "description": "HH:MM" },
+        "durationMinutes": { "type": "string", "description": "Duration in minutes" },
+        "status": { "type": "string", "enum": ["agendado", "confirmado", "presente", "em_atendimento", "concluido", "falta", "cancelado", "reagendado"], "description": "Current appointment status" },
+        "notes": { "type": "string", "description": "Appointment notes" },
+        "createdBy": { "type": "string", "description": "UID of creator" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp" }
+      },
+      "required": ["id", "clinicId", "patientId", "professionalUid", "date", "time", "status"]
+    },
+    "MedicalRecord": {
+      "title": "MedicalRecord",
+      "description": "Clinical record, initial evaluation or evolution entry in EHR",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Record ID" },
+        "clinicId": { "type": "string", "description": "Clinic tenant ID" },
+        "patientId": { "type": "string", "description": "Patient ID" },
+        "appointmentId": { "type": "string", "description": "Optional associated appointment ID" },
+        "recordType": { "type": "string", "enum": ["avaliacao_inicial", "evolucao", "procedimento", "prescricao", "atestado", "orientacao"], "description": "Type of clinical document" },
+        "specialty": { "type": "string", "description": "Specialty (Fisioterapia, Psicologia, Medicina, Nutrição, etc.)" },
+        "authorUid": { "type": "string", "description": "Author UID" },
+        "authorName": { "type": "string", "description": "Author display name" },
+        "authorRole": { "type": "string", "description": "Author role (health_professional, student, admin)" },
+        "authorRegister": { "type": "string", "description": "Professional register number" },
+        "supervisorUid": { "type": "string", "description": "Supervisor UID if authored by student" },
+        "supervisorName": { "type": "string", "description": "Supervisor name" },
+        "supervisorValidationStatus": { "type": "string", "enum": ["not_required", "pending_review", "approved", "requested_changes"], "description": "Supervisor review status" },
+        "chiefComplaint": { "type": "string", "description": "Queixa principal" },
+        "clinicalHistory": { "type": "string", "description": "Histórico da moléstia atual / antecedentes" },
+        "physicalExamination": { "type": "string", "description": "Exame físico / avaliação específica" },
+        "diagnosisHypothesis": { "type": "string", "description": "Hipótese diagnóstica / CID / CIF" },
+        "treatmentPlan": { "type": "string", "description": "Conduta e plano terapêutico" },
+        "evolutionNotes": { "type": "string", "description": "Anotações da sessão / evolução clínica" },
+        "specialtyData": { "type": "string", "description": "Serialized JSON of specialty-specific clinical markers" },
+        "attachments": { "type": "string", "description": "Serialized JSON list of attached documents/files" },
+        "isFinalized": { "type": "string", "description": "'true' or 'false'. Finalized records cannot be mutated" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" },
+        "updatedAt": { "type": "string", "description": "ISO timestamp" }
+      },
+      "required": ["id", "clinicId", "patientId", "authorUid", "recordType", "isFinalized"]
+    },
+    "MedicalRecordAddendum": {
+      "title": "MedicalRecordAddendum",
+      "description": "Immutable addendum appended to a finalized clinical record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Addendum ID" },
+        "recordId": { "type": "string", "description": "Parent record ID" },
+        "authorUid": { "type": "string", "description": "Author UID" },
+        "authorName": { "type": "string", "description": "Author name" },
+        "note": { "type": "string", "description": "Addendum explanation and correction details" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" }
+      },
+      "required": ["id", "recordId", "authorUid", "note", "createdAt"]
+    },
+    "InvitationCode": {
+      "title": "InvitationCode",
+      "description": "Staff invitation code generated by clinic admin",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Invitation ID or code" },
+        "code": { "type": "string", "description": "Alphanumeric code, e.g. CLN-8F2K9" },
+        "clinicId": { "type": "string", "description": "Clinic ID" },
+        "clinicName": { "type": "string", "description": "Clinic display name" },
+        "role": { "type": "string", "enum": ["admin", "health_professional", "student", "receptionist"], "description": "Assigned role" },
+        "profession": { "type": "string", "description": "Assigned profession" },
+        "assignedUnits": { "type": "string", "description": "Comma-separated unit IDs or 'all'" },
+        "maxUses": { "type": "string", "description": "Maximum uses count" },
+        "usedCount": { "type": "string", "description": "Current number of times used" },
+        "expiresAt": { "type": "string", "description": "ISO expiration timestamp" },
+        "isRevoked": { "type": "string", "description": "'true' or 'false'" },
+        "createdBy": { "type": "string", "description": "UID of admin" },
+        "createdAt": { "type": "string", "description": "ISO timestamp" }
+      },
+      "required": ["id", "code", "clinicId", "role"]
+    },
+    "AuditLog": {
+      "title": "AuditLog",
+      "description": "LGPD compliant action audit log entry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Log ID" },
+        "clinicId": { "type": "string", "description": "Clinic ID" },
+        "userUid": { "type": "string", "description": "Acting user UID" },
+        "userName": { "type": "string", "description": "Acting user name" },
+        "userRole": { "type": "string", "description": "Acting user role" },
+        "action": { "type": "string", "description": "Action executed" },
+        "entity": { "type": "string", "description": "Target entity" },
+        "entityId": { "type": "string", "description": "Target entity ID" },
+        "details": { "type": "string", "description": "Summary or JSON details" },
+        "timestamp": { "type": "string", "description": "ISO timestamp" }
+      },
+      "required": ["id", "clinicId", "userUid", "action", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profile document"
+    },
+    "/clinics/{clinicId}": {
+      "schema": { "$ref": "#/entities/Clinic" },
+      "description": "Clinic establishment root document"
+    },
+    "/clinics/{clinicId}/members/{memberId}": {
+      "schema": { "$ref": "#/entities/ClinicMember" },
+      "description": "Staff and user memberships in clinic"
+    },
+    "/clinics/{clinicId}/units/{unitId}": {
+      "schema": { "$ref": "#/entities/ClinicUnit" },
+      "description": "Physical units of clinic"
+    },
+    "/clinics/{clinicId}/patients/{patientId}": {
+      "schema": { "$ref": "#/entities/Patient" },
+      "description": "Patients under care of clinic"
+    },
+    "/clinics/{clinicId}/appointments/{appointmentId}": {
+      "schema": { "$ref": "#/entities/Appointment" },
+      "description": "Appointments scheduled at clinic"
+    },
+    "/clinics/{clinicId}/medical_records/{recordId}": {
+      "schema": { "$ref": "#/entities/MedicalRecord" },
+      "description": "EHR clinical charts, evaluations and evolutions"
+    },
+    "/clinics/{clinicId}/medical_records/{recordId}/addendums/{addendumId}": {
+      "schema": { "$ref": "#/entities/MedicalRecordAddendum" },
+      "description": "Immutable addendums to finalized medical records"
+    },
+    "/clinics/{clinicId}/invitations/{invitationId}": {
+      "schema": { "$ref": "#/entities/InvitationCode" },
+      "description": "Staff invitation codes for clinic joining"
+    },
+    "/clinics/{clinicId}/audit_logs/{logId}": {
+      "schema": { "$ref": "#/entities/AuditLog" },
+      "description": "LGPD security audit trail logs"
+    }
+  }
+}

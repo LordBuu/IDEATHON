@@ -1,0 +1,129 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isUser(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Membership helper
+    function isClinicMember(clinicId) {
+      return isSignedIn() && exists(/databases/$(database)/documents/clinics/$(clinicId)/members/$(request.auth.uid));
+    }
+
+    function getClinicMember(clinicId) {
+      return get(/databases/$(database)/documents/clinics/$(clinicId)/members/$(request.auth.uid)).data;
+    }
+
+    function isClinicAdmin(clinicId) {
+      return isSignedIn() && (
+        (exists(/databases/$(database)/documents/clinics/$(clinicId)) &&
+         get(/databases/$(database)/documents/clinics/$(clinicId)).data.ownerUid == request.auth.uid) ||
+        (isClinicMember(clinicId) && getClinicMember(clinicId).role == 'admin')
+      );
+    }
+
+    function isClinicalStaff(clinicId) {
+      return isClinicMember(clinicId) && (
+        getClinicMember(clinicId).role == 'health_professional' ||
+        getClinicMember(clinicId).role == 'student' ||
+        getClinicMember(clinicId).role == 'admin'
+      );
+    }
+
+    // USERS COLLECTION
+    match /users/{userId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
+      allow create: if isUser(userId);
+      allow update: if isUser(userId);
+      allow delete: if false;
+    }
+
+    // CLINICS ROOT
+    match /clinics/{clinicId} {
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.ownerUid == request.auth.uid;
+      allow update: if isClinicAdmin(clinicId);
+      allow delete: if isClinicAdmin(clinicId);
+
+      // MEMBERS
+      match /members/{memberId} {
+        allow get: if isClinicMember(clinicId) || request.auth.uid == memberId;
+        allow list: if isClinicMember(clinicId);
+        allow create: if isSignedIn() && (isClinicAdmin(clinicId) || request.auth.uid == memberId);
+        allow update: if isClinicAdmin(clinicId) || request.auth.uid == memberId;
+        allow delete: if isClinicAdmin(clinicId);
+      }
+
+      // UNITS
+      match /units/{unitId} {
+        allow get, list: if isClinicMember(clinicId);
+        allow create, update, delete: if isClinicAdmin(clinicId);
+      }
+
+      // INVITATIONS
+      match /invitations/{invitationId} {
+        allow get, list: if isSignedIn();
+        allow create, update, delete: if isClinicAdmin(clinicId);
+      }
+
+      // PATIENTS
+      // Strict rule: Receptionists cannot read or write patients clinical information!
+      match /patients/{patientId} {
+        allow get, list: if isClinicalStaff(clinicId);
+        allow create: if isClinicalStaff(clinicId);
+        allow update: if isClinicalStaff(clinicId);
+        allow delete: if isClinicAdmin(clinicId);
+      }
+
+      // APPOINTMENTS
+      // Receptionist CAN access and manage appointments
+      match /appointments/{appointmentId} {
+        allow get, list: if isClinicMember(clinicId);
+        allow create: if isClinicMember(clinicId);
+        allow update: if isClinicMember(clinicId);
+        allow delete: if isClinicAdmin(clinicId);
+      }
+
+      // MEDICAL RECORDS (PRONTUÁRIOS)
+      // Only Health Professionals, Students, and Admins can view/create.
+      // Recepcionistas have ZERO access!
+      // Finalized records cannot be modified or deleted.
+      match /medical_records/{recordId} {
+        allow get, list: if isClinicalStaff(clinicId);
+        allow create: if isClinicalStaff(clinicId) && request.resource.data.authorUid == request.auth.uid;
+        allow update: if isClinicalStaff(clinicId) && resource.data.isFinalized != 'true';
+        allow delete: if false; // Medical records cannot be deleted silently
+
+        // ADDENDUMS
+        match /addendums/{addendumId} {
+          allow get, list: if isClinicalStaff(clinicId);
+          allow create: if isClinicalStaff(clinicId) && request.resource.data.authorUid == request.auth.uid;
+          allow update, delete: if false; // Addendums are strictly immutable
+        }
+      }
+
+      // AUDIT LOGS
+      match /audit_logs/{logId} {
+        allow get, list: if isClinicAdmin(clinicId);
+        allow create: if isClinicMember(clinicId) && request.resource.data.userUid == request.auth.uid;
+        allow update, delete: if false;
+      }
+    }
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "Clinora - Gestão em Saúde",
+  "description": "Plataforma SaaS profissional de gestão para clínicas e estabelecimentos de saúde com controle de unidades, agenda, prontuário eletrônico e temas personalizados.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
